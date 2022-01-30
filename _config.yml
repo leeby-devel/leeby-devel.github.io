@@ -32,7 +32,7 @@ description: >-                        # used by seo meta and the atom feed
   Spring, Kotlin, Java, K8s, etc.
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
-url: 'https://leeby.one'
+url: 'https://leeby-devel.github.io'
 
 github:
   username: leeby-devel             # change to your github username
