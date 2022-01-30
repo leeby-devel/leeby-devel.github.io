@@ -23,12 +23,12 @@ timezone: Asia/Seoul
 
 title: 작심삼일 블로그                          # the main title
 
-tagline: 내 원동력이 되어주라   # it will display as the sub-title
+tagline: 나의 원동력이 되어주라   # it will display as the sub-title
 
 description: >-                        # used by seo meta and the atom feed
-  A minimal, portfolio, sidebar,
-  bootstrap Jekyll theme with responsive web design
-  and focuses on text presentation.
+  평범한 개발자의 평범한 기술 블로그
+  Back-End Engineer Specialized in
+  Spring, Kotlin, Java, K8s, etc.
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
 url: 'https://leeby-devel.github.io'
@@ -42,8 +42,8 @@ twitter:
 social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
-  name: your_full_name
-  email: example@doamin.com             # change to your email address
+  name: leeby
+  email: leeby.devel@gmail.com             # change to your email address
   links:
     # The first element serves as the copyright owner's link
     - https://twitter.com/username      # change to your twitter homepage
