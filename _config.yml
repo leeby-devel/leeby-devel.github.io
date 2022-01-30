@@ -5,7 +5,7 @@ theme: jekyll-theme-chirpy
 
 # Change the following value to '/PROJECT_NAME' ONLY IF your site type is GitHub Pages Project sites
 # and doesn't have a custom domain.
-baseurl: '/'
+baseurl: ''
 
 # The language of the webpage › http://www.lingoes.net/en/translator/langcode.htm
 # If it has the same name as one of the files in folder `_data/locales`, the layout language will also be changed,
@@ -53,15 +53,13 @@ social:
     # - https://www.facebook.com/username
     # - https://www.linkedin.com/in/username
 
-#google_site_verification: sGZlAxCFoyiY1YBBAqfGj5urtMWcA4HzjhZvcJAajOU               # fill in to your verification string
-google_site_verification:
+google_site_verification: sGZlAxCFoyiY1YBBAqfGj5urtMWcA4HzjhZvcJAajOU               # fill in to your verification string
 
 # ↑ --------------------------
 
 
 google_analytics:
-  id:
-#  id: G-FM1HTHQVZ8                # fill in your Google Analytics ID
+  id: G-FM1HTHQVZ8                # fill in your Google Analytics ID
   # Google Analytics pageviews report settings
   pv:
     proxy_endpoint:   # fill in the Google Analytics superProxy endpoint of Google App Engine
@@ -100,8 +98,9 @@ comments:
     shortname:    # fill with the Disqus shortname. › https://help.disqus.com/en/articles/1717111-what-s-a-shortname
   # utterances settings › https://utteranc.es/
   utterances:
-    repo:         # <gh-username>/<repo>
-    issue_term:   # < url | pathname | title | ...>
+    repo: leeby-devel/leeby-devel.github.io        # <gh-username>/<repo>
+    issue_term: pathname   # < url | pathname | title | ...>
+    theme: github-dark
 
 paginate: 10
 
