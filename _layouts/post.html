@@ -2,33 +2,33 @@
 layout: page
 refactor: true
 pannel_includes:
-- toc
+  - toc
 tail_includes:
-- related-posts
-- post-nav
-- comments
+  - related-posts
+  - post-nav
+  - comments
 ---
 
 {% include lang.html %}
 
 {% if page.image.src %}
-{% capture bg %}
-{% unless page.image.no_bg %}{{ 'bg' }}{% endunless %}
-{% endcapture %}
-<img src="{{ page.image.src }}" class="preview-img {{ bg | strip }}"
-     alt="{{ page.image.alt | default: "Preview Image" }}"
+  {% capture bg %}
+    {% unless page.image.no_bg %}{{ 'bg' }}{% endunless %}
+  {% endcapture %}
+  <img src="{{ page.image.src }}" class="preview-img {{ bg | strip }}"
+      alt="{{ page.image.alt | default: "Preview Image" }}"
 
-{% if page.image.width %}
-width="{{ page.image.width }}"
-{% elsif page.image.w %}
-width="{{ page.image.w }}"
-{% endif %}
+      {% if page.image.width %}
+        width="{{ page.image.width }}"
+      {% elsif page.image.w %}
+        width="{{ page.image.w }}"
+      {% endif %}
 
-{% if page.image.height %}
-height="{{ page.image.height }}"
-{% elsif page.image.h %}
-height="{{ page.image.h }}"
-{% endif %}>
+      {% if page.image.height %}
+        height="{{ page.image.height }}"
+      {% elsif page.image.h %}
+        height="{{ page.image.h }}"
+      {% endif %}>
 {% endif %}
 
 <h1 data-toc-skip>{{ page.title }}</h1>
@@ -41,17 +41,17 @@ height="{{ page.image.h }}"
     {% assign author_link = nil %}
 
     {% if page.author.link %}
-    {% assign author_link = page.author.link %}
+      {% assign author_link = page.author.link %}
     {% elsif author_name == site.social.name %}
-    {% assign author_link = site.social.links[0] %}
+      {% assign author_link = site.social.links[0] %}
     {% endif %}
 
     {{ site.data.locales[lang].post.written_by }}
     <em>
       {% if author_link %}
-      <a href="{{ author_link }}">{{ author_name }}</a>
+        <a href="{{ author_link }}">{{ author_name }}</a>
       {% else %}
-      {{ author_name }}
+        {{ author_name }}
       {% endif %}
     </em>
   </div>
@@ -101,8 +101,8 @@ height="{{ page.image.h }}"
   <div class="post-meta mb-3">
     <i class="far fa-folder-open fa-fw mr-1"></i>
     {% for category in page.categories %}
-    <a href='{{ site.baseurl }}/categories/{{ category | slugify | url_encode }}/'>{{ category }}</a>
-    {%- unless forloop.last -%}, {%- endunless -%}
+      <a href='{{ site.baseurl }}/categories/{{ category | slugify | url_encode }}/'>{{ category }}</a>
+      {%- unless forloop.last -%}, {%- endunless -%}
     {% endfor %}
   </div>
   {% endif %}
@@ -111,12 +111,12 @@ height="{{ page.image.h }}"
   {% if page.tags.size > 0 %}
   <div class="post-tags">
     <i class="fa fa-tags fa-fw mr-1"></i>
-    {% for tag in page.tags %}
-    <a href="{{ site.baseurl }}/tags/{{ tag | slugify | url_encode }}/"
-       class="post-tag no-text-decoration" >
-      {{- tag -}}
-    </a>
-    {% endfor %}
+      {% for tag in page.tags %}
+      <a href="{{ site.baseurl }}/tags/{{ tag | slugify | url_encode }}/"
+          class="post-tag no-text-decoration" >
+        {{- tag -}}
+      </a>
+      {% endfor %}
   </div>
   {% endif %}
 
@@ -126,13 +126,13 @@ height="{{ page.image.h }}"
 
       {% if site.data.locales[lang].copyright.license.template %}
 
-      {% capture _replacement %}
-      <a href="{{ site.data.locales[lang].copyright.license.link }}">
-        {{ site.data.locales[lang].copyright.license.name }}
-      </a>
-      {% endcapture %}
+        {% capture _replacement %}
+        <a href="{{ site.data.locales[lang].copyright.license.link }}">
+          {{ site.data.locales[lang].copyright.license.name }}
+        </a>
+        {% endcapture %}
 
-      {{ site.data.locales[lang].copyright.license.template | replace: ':LICENSE_NAME', _replacement }}
+        {{ site.data.locales[lang].copyright.license.template | replace: ':LICENSE_NAME', _replacement }}
 
       {% endif %}
     </div>
@@ -142,3 +142,12 @@ height="{{ page.image.h }}"
   </div><!-- .post-tail-bottom -->
 
 </div><!-- div.post-tail-wrapper -->
+
+<!-- Utterances comment snippet -->
+<!--<script src="https://utteranc.es/client.js"-->
+<!--        repo="leeby-devel/leeby-devel.github.io"-->
+<!--        issue-term="pathname"-->
+<!--        theme="github-light"-->
+<!--        crossorigin="anonymous"-->
+<!--        async>-->
+<!--</script>-->
