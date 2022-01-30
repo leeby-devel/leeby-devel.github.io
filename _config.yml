@@ -97,6 +97,7 @@ comments:
   disqus:
     shortname:    # fill with the Disqus shortname. › https://help.disqus.com/en/articles/1717111-what-s-a-shortname
   # utterances settings › https://utteranc.es/
+  # 아래 동작 안해서 일단 post.html 에 직접 삽입
   utterances:
     repo: leeby-devel/leeby-devel.github.io        # <gh-username>/<repo>
     issue_term: pathname   # < url | pathname | title | ...>
