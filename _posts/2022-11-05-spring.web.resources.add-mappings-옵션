@@ -1,0 +1,92 @@
+---
+title: spring.web.resources.add-mappings 옵션
+author:
+name: leeby
+link: https://github.com/leeby-devel
+date: 2022-11-05 05:52:00 +0900
+categories: [Spring, DispatcherServlet]
+tags: [SpringBoot, DispatcherServlet, HandlerMapping]
+---
+
+## DispatcherServlet 의 기이한 동작
+
+회사에서 특정 엔드포인트에 접속 시 톰캣 에러페이지가 그대로 노출되는 이슈를 디버깅하다가 DispatcherServlet 의 기이한(?) 동작을 발견하고 왜 그런지 궁금하여 알아봤다.
+
+
+
+컨트롤러가 바인딩되지 않은 경로로 접속을 하면 당연히 DispatcherServlet 에서  `NoHandlerFoundException` 이 발생할 것으로 기대했지만 실제 동작은 그렇지 않았다.
+
+
+
+오히려 HandlerMapping 단계에서 `ResourceHttpRequestHandler` 라는 핸들러를 아주 잘 매핑하고 있었다.
+
+
+
+구글링 후 다음 설정값에 따라 동작이 달라지는 것을 알 수 있었다.
+
+
+
+> SpringBoot 에서 별도의 설정을 하지 않으면 `spring.web.resources.add-mappings: true`  가 기본값이 된다.
+
+
+
+## spring.web.resources.add-mappings: true 의 의미
+
+위 설정 하에서는 요청된 url 경로와 매핑되는 컨트롤러(=핸들러)가 없더라도 HandlerMapping 시 `SimpleUrlHandlerMapping.getHandler` 에 의해 `ResourceHttpRequestHandler` 가 매핑된다.
+
+`ResourceHttpRequestHandler` 를 조회하는 과정
+
+> `SimpleUrlHandlerMapping.getHandler`
+>
+> > `AbstractHandlerMapping.getHandler`
+> >
+> > > `AbstractUrlHandlerMapping.getHandlerInternal`
+> > >
+> > > > `AbstractUrlHandlerMapping.lookupHandler`
+> > > >
+> > > > > `this.handlerMap`
+
+
+
+> SimpleUrlHandlerMapping.getHandler 의 반환값이 ResourceHttpRequestHandler 가 되는 이유는 다음 단락에서 설명한다.
+{: .prompt-note }
+
+즉, `DispatcherServlet` 에서는 `ResourceHttpRequestHandler` 라는 핸들러를 매핑했기  때문에 `NoHandlerFoundException` 이 발생하지 않는 것이다.
+
+
+
+다른 말로, 실제로 (바인딩된 컨트롤러가) 없는 `/no-path-like-this` 라는 경로에 요청이 들어오면 이 경로를 Resource 경로로 판단한다는 뜻이다.
+
+
+
+물론 Resource 디렉토리에 이에 해당하는 리소스가 없을 것이니 404를 잘 응답하겠지만, 존재하지 않는 모든 경로를 Resource 경로로 인식하게 끔 하는 것은 내가 의도한 바가 아니었다.
+
+
+
+이 같은 동작을 피하기 위해서는 `spring.web.resources.add-mappings: false` 로 설정하면 된다.
+
+
+
+## SimpleUrlHandlerMapping.getHandler 는 왜 ResourceHttpRequestHandler 를 반환할까?
+
+`SimpleUrlHandlerMapping` 이 생성될 때 `urlMap` 이라는 맵이 생성자에 전달되고 `this.urlMap` 에 값이 할당된다.
+
+
+
+`urlMap`
+
+- `/webjars/**` -> `ResourceHttpRequestHandler`
+
+- `/**` -> `ResourceHttpRequestHandler`
+
+- `/static/**` -> `ResourceHttpRequestHandler`
+
+
+
+`urlMap` 값은 스프링 애플리케이션이 실행될 때 `SimpleUrlHandlerMapping.registerHandlers` 에서 핸들러를 등록할 때 활용된다. (= `SimpleUrlHandlerMapping.handlerMap` 에 등록된다.)
+
+
+
+따라서 런타임에 실제로 없는 경로 (e.g. `/no-path-like-me`)로 요청이 들어오면 `SimpleUrlHandlerMapping.lookupHandler` 에서 `handlerMap` 을 조회하게되고 해당 경로가 `/**` 에 매치되면서 `ResourceHttpRequestHandler` 를 반환하게 되는것이다.
+
+
