@@ -5,7 +5,7 @@ name: leeby
 link: https://github.com/leeby-devel
 date: 2022-11-05 16:54:00 +0900
 categories: [Java, JVM]
-tags: [Java, Java11, JVM, Kubernetes, docker, JVM Container Awareness]
+tags: [Java, Java11, JVM, Kubernetes, docker, Container Awareness]
 ---
 
 ## **저처럼 글 읽기를 싫어하시는 분들을 위한 결론**
