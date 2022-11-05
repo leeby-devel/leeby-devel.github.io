@@ -119,7 +119,7 @@ tags: [Java, Java11, JVM, Kubernetes, docker, JVM Container Awareness]
 
 docker-desktop 4.3.0 부터 cgroup v2 feature 를 사용한 것으로 보인다.
 
-위 [Java 버그 리포트](https://bugs.openjdk.org/browse/JDK-8230305){:target="_blank"}에 따르면 이 버그는 Java 15 에서 패치됐지만 아주 다행히도 최근 (뒤늦게) 11.0.16 GA 버전에 백포팅됐다고 한다. 아무래도 나름 크리티컬한 버그이고 11 은 LTS 여서 백포팅해준 듯 하다.
+위 [Java 버그 리포트](https://bugs.openjdk.org/browse/JDK-8230305){:target="_blank"}에 따르면 이 버그는 Java 15 에서 패치됐지만 아주 다행히도 최근 (뒤늦게) **11.0.16 GA 버전에 백포팅됐다**고 한다. 아무래도 나름 크리티컬한 버그이고 11 은 LTS 여서 백포팅해준 듯 하다.
 
 위 도커 테스트에서는 **docker-desktop 버전이 4.11.0** 으로 cgroup v2 feature 를 사용중일 것이고, Java 는 그에 대한 대응이 되지 않은 **11.0.4**, **13.0.2_8** 버전이어서 컨테이너 리소스 detection 이 제대로 되지 않았던 것이다.
 
