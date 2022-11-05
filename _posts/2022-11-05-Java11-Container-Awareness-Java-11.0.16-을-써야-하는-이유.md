@@ -132,7 +132,7 @@ docker-desktop 4.3.0 부터 cgroup v2 feature 를 사용한 것으로 보인다.
 <img width="1385" alt="11 0 16 - success" src="https://user-images.githubusercontent.com/98696463/200107033-ce85a711-4ffe-4556-b4c7-35ea31dc1a74.png">
 
 ### _**docker-desktop 3.6.0**_
-자, 반대로 docker-desktop 버전을 내린다면 Java **11.0.4**, **13.0.2_8** 에서도 잘 동작해야할 것이다.
+자, 반대로 docker-desktop 버전을 내린다면 Java **11.0.4**, **13.0.2_8** 에서도 잘 동작해야 할 것이다.
 
 **openjdk11.0.4_11**
 <img width="1370" alt="11 0 4-success" src="https://user-images.githubusercontent.com/98696463/200107000-185571d7-7f5e-4220-8f67-014510999e95.png">
