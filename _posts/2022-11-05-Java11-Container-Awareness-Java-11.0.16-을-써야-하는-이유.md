@@ -54,7 +54,7 @@ tags: [Java, Java11, JVM, Kubernetes, docker, Container Awareness]
 
 당시 애플리케이션의 Heap 메모리 조절을 위한 JVM 옵션 값으로 `InitialRAMPercentage`, `MaxRAMPercentage` 를 사용했다. `xmx`, `xms` 옵션보다 유동적이라는 이유에서였다.
 
-### _Java 13 부터만 해당 옵셥을 사용할 수 있다면 왜일까?_
+### _Java 13 부터만 해당 옵션을 사용할 수 있다면 왜일까?_
 
 궁금해서 글에 있는 Java 13 이전 버전에서 발생하는 **[버그 리포트](https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8223957){:target="_blank"}**를 쭉 읽어봤다.
 
