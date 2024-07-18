@@ -94,6 +94,12 @@ img {
   height: auto;
 }
 
+.post-content img {
+  border-radius: 10px;
+  border: 1px solid #3f3e3e;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
 blockquote {
   border-left: 5px solid var(--blockquote-border-color);
   padding-left: 1rem;
