@@ -267,10 +267,10 @@ img[data-src] {
     margin: 0 0.35rem 0.5rem 0;
 
     &:hover {
-      background-color: #2a408e;
-      border-color: #2a408e;
+      background-color: #218d60;
+      border-color: #218d60;
       color: #fff;
-      transition: none;
+      transition: background-color 0.2s ease-in-out;
     }
   }
 
