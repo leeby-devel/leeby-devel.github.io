@@ -34,7 +34,7 @@
 
   /* Topbar */
   --topbar-text-color: rgb(78, 78, 78);
-  --topbar-wrapper-bg: white;
+  --topbar-wrapper-bg: var(--main-wrapper-bg);
   --search-wrapper-bg: rgb(245 245 245 / 50%);
   --search-wrapper-border-color: rgb(245 245 245);
   --search-tag-bg: #f8f9fa;
