@@ -1,5 +1,5 @@
 ---
-title: JVM 메모리 누수 분석 및 개선 방안 > Native 메모리 > glibc malloc
+title: JVM 메모리 누수 > Native 메모리 > glibc malloc
 author:
 name: leeby
 link: https://github.com/leeby-devel
