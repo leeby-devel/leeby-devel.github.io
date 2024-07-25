@@ -5,7 +5,7 @@ name: leeby
 link: https://github.com/leeby-devel
 date: 2024-07-18 20:54:00 +0900
 categories: [JVM]
-tags: [JDK, JVM, leak, C, glibc, malloc]
+tags: [JDK, JVM, leak, C, glibc, malloc, jcmd]
 ---
 
 
@@ -142,7 +142,7 @@ define NARENAS_FROM_NCORES(n) ((n) * (sizeof (long) == 4 ? 2 : 8))
 
 여담이지만 cpu resource 리소스를 너무 많이 잡아 놓은 것 같다.<br /><br />
 JVM 애플리케이션 특성상 앱 시작시 많은 CPU 자원을 소모하기 때문에 cpu 리소스를 많이 할당했지만 평시에는 cpu 자원을 거의 사용하지 않았다.
-웜업 로직을 개선하든, 클러스터 버전업을 하면서 k8s 1.27 에 소개된 <a href="ttps://kubernetes.io/blog/2023/05/12/in-place-pod-resize-alpha/#java-processes-initialization-cpu-requirements">In-place Resource Resize</a> 라는 피쳐를 사용해보든 개선해야 할 사항이라 생각한다.
+웜업 로직을 개선하든, 클러스터 버전업을 하면서 k8s 1.27 에 소개된 <a href="https://kubernetes.io/blog/2023/05/12/in-place-pod-resize-alpha/#java-processes-initialization-cpu-requirements">In-place Resource Resize</a> 라는 피쳐를 사용해보든 개선해야 할 사항이라 생각한다.
 </details>
 
 # ptmalloc2 의 메모리 파편화 문제
@@ -181,10 +181,10 @@ JVM 애플리케이션 특성상 앱 시작시 많은 CPU 자원을 소모하기
 >- [https://github.com/cloudfoundry/java-buildpack/issues/320](https://github.com/cloudfoundry/java-buildpack/issues/320)
 >- [https://github.com/quarkusio/quarkus/issues/36204](https://github.com/quarkusio/quarkus/issues/36204)
 
-👉 요약하면 다음과 같은 일이 벌어진다는 내용이다.
+👉 요약하면 다음과 같은 일이 반복적으로 일어난다는 내용이다.
 1. 메모리 요청이 들어온다.
 2. 재사용을 위해 남겨둔 freelist 를 사용하지 않고 또 다른 Arena 를 생성한다.
-3. 메모리를 모두 사용한 뒤 (향후 사용을 위해) OS 에 반환하지 않는다.
+3. 메모리를 모두 사용한 뒤 (향후있게 될 사용을 위해) OS 에 반환하지 않고 freelist 로 만든다.
 4. Arena 에 사용되지 않는 freelist 들이 계속 쌓여간다.
 
 **`2번`**: freelist 가 실제로 재활용되지 않는 경우가 많다며 버그리포트에서 지적하는 내용이다.\
@@ -303,9 +303,8 @@ JVM 에 위 같은 문제가 있자, `malloc_trim()` 명령어를 애플리케�
 
 ## Note.
 1. **이론상 CPU 가 하나 추가될 때마다 Native 메모리가 512MiB 까지 더 필요할 수도 있다는 점**\
-사실 ptmalloc2 이 항상 freelist 를 재활용하지 않는 것도 아니고, OS 로 메모리 반환을 항상 하지 않는 것도 아니다.
-때문에 메모리 점유율은 증가하긴 하지만 완만하고 느리다. 배포 주기가 매우 긴 조직이 아니면 모든 Arena 가 이론상의 최대 수치 만큼 도달하지는 않을 것 같다.
-다만 중요한점은 문제를 인지하고 이에 대한 대비를 하느냐의 여부일 것 같다.
+사실 ptmalloc2 이 항상 freelist 를 재활용하지 않는 것도 아니고, OS 로 메모리 반환을 항상 하지 않는 것도 아니다. 때문에 메모리 점유율은 증가하긴 하지만 완만하고 느리다.\
+배포 주기가 매우 긴 조직이 아니면 모든 Arena 가 이론상의 최대 수치 만큼 도달하지는 않을 것 같다. 다만 중요한점은 문제를 인지하고 이에 대한 대비를 하느냐의 여부일 것 같다.
 
 2. **ptmalloc2 는 (JVM 을 구동할 때?) 메모리 파편화 ~~이슈~~가 있다는 점**\
 사실은 ptmalloc2 자체의 "이슈"라기 보다는 ptmalloc2 의 메모리 할당 알고리즘이 JVM 과 핏하지 않은 것 뿐이라는 생각이 더 크다.
