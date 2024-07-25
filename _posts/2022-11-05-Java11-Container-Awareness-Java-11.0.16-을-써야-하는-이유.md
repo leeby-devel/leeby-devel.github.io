@@ -40,7 +40,7 @@ tags: [JDK, JDK11, JVM, Kubernetes, docker, Container Awareness]
 >
 > 나름의 삽질을 통해 리소스를 산정하여 k8s 위에 애플리케이션을 올렸지만 종종 알 수 없는 이유로 내 소중한 Pod 가 OOMKilled 당하는 모습을 목격해야 했고, 결국엔 리소스 상향이라는 미봉책으로 여차 저차 땜질했던 기억이 다시 떠올랐다.
 >
-> <img width="663" alt="스크린샷 2022-11-05 오후 2 25 13" src="https://user-images.githubusercontent.com/98696463/200103865-c62e94a8-57e6-46ed-ac82-972f739975f8.png">
+> <img width="850" alt="스크린샷 2022-11-05 오후 2 25 13" src="https://user-images.githubusercontent.com/98696463/200103865-c62e94a8-57e6-46ed-ac82-972f739975f8.png">
 >
 > 정말 이상했다. Pod 가 왜 설정한 메모리 limit (8Gi) 보다 더 많은 메모리를 사용하다 죽는지 말이다.
 
@@ -50,7 +50,7 @@ tags: [JDK, JDK11, JVM, Kubernetes, docker, Container Awareness]
 
 지난번 부족했던 점을 복기하고자, 당시 회사 인트라넷에 작성한 삽질기에 전 파트 동료분이 작성해주신 댓글과 링크를 열심히 곱씹어 봤다.
 
-<img width="654" alt="스크린샷 2022-11-05 오후 2 31 48" src="https://user-images.githubusercontent.com/98696463/200104138-f10b7f60-d70d-412b-ae84-c499facc7f91.png">
+<img width="850" alt="스크린샷 2022-11-05 오후 2 31 48" src="https://user-images.githubusercontent.com/98696463/200104138-f10b7f60-d70d-412b-ae84-c499facc7f91.png">
 
 당시 애플리케이션의 Heap 메모리 조절을 위한 JVM 옵션 값으로 `InitialRAMPercentage`, `MaxRAMPercentage` 를 사용했다. `xmx`, `xms` 옵션보다 유동적이라는 이유에서였다.
 
@@ -60,7 +60,7 @@ tags: [JDK, JDK11, JVM, Kubernetes, docker, Container Awareness]
 
 > **리포트에서 지적한 문제점**
 >
-> <img width="704" alt="스크린샷 2022-11-05 오후 2 38 45" src="https://user-images.githubusercontent.com/98696463/200104272-5ce53656-e6a3-4999-8d9e-bb29039ea4ce.png">
+> <img width="850" alt="스크린샷 2022-11-05 오후 2 38 45" src="https://user-images.githubusercontent.com/98696463/200104272-5ce53656-e6a3-4999-8d9e-bb29039ea4ce.png">
 >
 > 1. 시스템(컨테이너) 메모리가 Java MaxRAM 보다 큰 경우 위 옵션은 시스템 메모리가 아닌 MaxRAM 을 기준으로 MazHeapSize 를 계산한다.
 >   (`MaxHeapSize` = `MaxRAM` * `(MaxRAMPercentage) / 100`)
