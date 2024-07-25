@@ -1,11 +1,11 @@
 ---
-title: JVM Native 메모리 누수 분석 및 개선 방안 - glibc malloc
+title: JVM 메모리 누수 분석 및 개선 방안 > Native 메모리 > glibc malloc
 author:
 name: leeby
 link: https://github.com/leeby-devel
 date: 2024-07-18 20:54:00 +0900
 categories: [JVM]
-tags: [JDK, JVM, C, glibc, malloc]
+tags: [JDK, JVM, leak, C, glibc, malloc]
 ---
 
 
