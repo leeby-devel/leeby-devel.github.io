@@ -76,10 +76,10 @@ _궁금해서 코멘트에 참조된 **[버그 리포트](https://bugs.java.com/
 
 위 흐름을 이어 받아, 이전에 OOMKilled 로 고생하던 애플리케이션의 openjdk 버전에 `MaxRAMPercentage` 옵션을 넣고 MaxHeapSize 를 출력해봤다.
 
-### **docker-desktop 4.3.0**
-
-- 컨테이너 메모리: 1GiB
+- 컨테이너 메모리: 1GB
 - `MaxRAMPercentage`: 80
+
+### **docker-desktop 4.3.0**
 
 <img width="1321" alt="11 0 4-failed" src="https://user-images.githubusercontent.com/98696463/200109639-f75e41e6-1609-4565-9a16-139e506596fd.png">
 _**openjdk11.0.4_11**_
