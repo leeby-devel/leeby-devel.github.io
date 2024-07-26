@@ -9,7 +9,7 @@ tags: [JDK, JVM, leak, C, glibc, malloc, jcmd]
 ---
 
 
-몇 개월 전 파트 내 애플리케이션에서 발생한 메모리 누수를 트러블 슈팅 & 픽스한 적이 있고 [포스트](/posts/JVM-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EB%88%84%EC%88%98/)로 다루었다. 누수를 잡아낸 후에도 미량이지만 애플리케이션 전체 메모리 사용량 (RSS 기준)이 계속해서 늘어나고 있었다.
+몇 개월 전 파트 내 애플리케이션에서 발생한 메모리 누수를 트러블 슈팅 & 픽스한 적이 있고 [포스트](/posts/JVM-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EB%88%84%EC%88%98/){:target="_blank"}로 다루었다. 누수를 잡아낸 후에도 미량이지만 애플리케이션 전체 메모리 사용량 (RSS 기준)이 계속해서 늘어나고 있었다.
 
 원인을 파헤쳐보니 크리티컬한 내용은 아니나, GNU C 라이브러리 (glibc) 위에 구동되는 JVM 은 알게 모르게 영향을 받을 내용이라서 이곳에 그 내용을 공유해본다.
 
@@ -65,14 +65,14 @@ _뒤이어 옆 파트에서도 유사 사례가 있었다는 내용을 전달 �
 
 사실 Native 메모리가 단순히 부족해서 생기는 문제가 아닐까 (사용량이 끝없이 증가하진 않을거니깐?) 라며 엉뚱한 곳에 초점을 두고 트러블 슈팅 중이었는데, 동료 ~~(팀장님)~~ 가 중간중간 방향을 잡아준 덕에 **메모리 할당자 쪽에 영점을 맞춰** 이부분을 파헤쳐 봤다.
 
->포스팅에서 나도 이제 막 공부한 malloc 의 동작원리 따위를 다루어야 할지 말지 고민이 많았지만 문제를 이해하기 위해 필요한 내용이라고 판단했고 현상을 이해하기 위해 필요한 정도로만 다루어보기로 했습니다. 이에 대한 더 정확한 이해를 위해서는 **[glibc malloc 에 대한 공식 문서](https://sourceware.org/glibc/wiki/MallocInternals)**를 참고하시는 것을 권해드립니다.
+>포스팅에서 나도 이제 막 공부한 malloc 의 동작원리 따위를 다루어야 할지 말지 고민이 많았지만 문제를 이해하기 위해 필요한 내용이라고 판단했고 현상을 이해하기 위해 필요한 정도로만 다루어보기로 했습니다. 이에 대한 더 정확한 이해를 위해서는 **[glibc malloc 에 대한 공식 문서](https://sourceware.org/glibc/wiki/MallocInternals){:target="_blank"}**를 참고하시는 것을 권해드립니다.
 {: .prompt-note }
 
 ## 갑자기 메모리 할당자 (malloc) 요?
 OpenJDK 기준으로 JVM 은 OS 위에서 실행되는 C 프로세스이다. 때문에 C 메모리 할당 알고리즘의 영향을 받게 된다.
 
 <img width="872" alt="스크린샷 2024-07-19 오후 10 12 21" src="https://github.com/user-attachments/assets/459c16df-a2d7-4b8a-ac7c-6ddf34ff6683">
-_다음 그림은 C / JVM Memory 매핑을 도식화한 그림이다. ([출처](https://www.alibabacloud.com/blog/explaining-memory-issues-in-java-cloud-native-practices_599957))_
+_다음 그림은 C / JVM Memory 매핑을 도식화한 그림이다. ([출처](https://www.alibabacloud.com/blog/explaining-memory-issues-in-java-cloud-native-practices_599957){:target="_blank"})_
 
 그림에서 보이듯 JVM 에서 Native / Non-heap 으로 표현되었던 메모리 영역들은 C 관점에서는 모두 Heap 에 위치한다.\
 (JVM code, JVM Data, JVM Thread 의 Native Method Stack 등 일부 제외)
@@ -103,7 +103,7 @@ _(alpine 등 일부 OS 는 제외 / 최상단 표 참고)_
 | freelist (= Bin) | Free 상태인 Chunk 들을 관리하기 위한 연결 리스트                                                                             |
 
 
-스레드가 메모리를 요청 `malloc()` 하면 하나의 Arena 를 할당받는데, 여러개의 스레드가 동일한 Arena 를 할당 받을 수 있다. 한번 할당받은 Arena 는 몇몇 [예외 상황](https://sourceware.org/glibc/wiki/MallocInternals#Switching_arenas)을 제외하면 스위치되지 않는다. ptmalloc2 은 이런 Arena 를 기본적으로 여러개 유지하기에 스레드들간 경합을 최소화할 수 있다.
+스레드가 메모리를 요청 `malloc()` 하면 하나의 Arena 를 할당받는데, 여러개의 스레드가 동일한 Arena 를 할당 받을 수 있다. 한번 할당받은 Arena 는 몇몇 [예외 상황](https://sourceware.org/glibc/wiki/MallocInternals#Switching_arenas){:target="_blank"}을 제외하면 스위치되지 않는다. ptmalloc2 은 이런 Arena 를 기본적으로 여러개 유지하기에 스레드들간 경합을 최소화할 수 있다.
 
 또한 하나의 Arena 에서 각 스레드는 별도의 Heap 세그먼트를 유지하기 때문에 이러한 Heap 을 유지하는 freelist (Bin) 도 별도로 유지된다. 이것이 멀티 스레딩 환경에서 동시에 malloc 요청이 오더라도 대개 즉각적으로 (= 경합 없이) freelist 로부터 메모리를 할당해 줄 수 있는 이유이다.
 
@@ -161,7 +161,7 @@ JVM 애플리케이션 특성상 앱 시작시 많은 CPU 자원을 소모하기
 >하지만 ptmalloc2 는 기대한 것처럼 동작하지 않는다. `free()` 가 호출되면 ptmalloc2 은 OS 로 (대체로) 메모리를 반환하지 않는다. 🤯
 >대신 반환할 메모리를 향후 있을 수도 있을 사용을 위해 freelist 로 만드는데, freelist 는 OS 관점에서는 애플리케이션이 여전히 사용중인(RSS) 메모리일 뿐이다.
 >
->좀 더 [복합적인 로직](https://sourceware.org/glibc/wiki/MallocInternals#Free_Algorithm)이 있지만 단순화하면,
+>좀 더 [복합적인 로직](https://sourceware.org/glibc/wiki/MallocInternals#Free_Algorithm){:target="_blank"}이 있지만 단순화하면,
 >- `free()` 호출 시, 향후 있을 사용을 위해 OS 로 메모리를 반환하지 않고 해당 **Heap 을 freelist 로 할당**한다.
 >- 이 말은 애플리케이션 메모리가 glibc 에 반환된 것이지, OS 에 반환된 것이 아니라는 말이다.
 >- 이같은 이유로 위에서 Chunk 를 설명할 때 Free Chunk 를 **owned by glibc** 로 표현했다.
@@ -178,8 +178,8 @@ JVM 애플리케이션 특성상 앱 시작시 많은 CPU 자원을 소모하기
 >
 >이 대목에서 glibc 의 메모리 점유와 관련된 버그 리포트들을 찾아볼 수 있다.\
 >메모리 할당자가 기대처럼 freelist 재활용을 잘 하지 못하고, 새로운 Arena 를 생성하면서 메모리 점유량이 늘어난다는 내용이다.
->- [https://github.com/cloudfoundry/java-buildpack/issues/320](https://github.com/cloudfoundry/java-buildpack/issues/320)
->- [https://github.com/quarkusio/quarkus/issues/36204](https://github.com/quarkusio/quarkus/issues/36204)
+>- [https://github.com/cloudfoundry/java-buildpack/issues/320](https://github.com/cloudfoundry/java-buildpack/issues/320){:target="_blank"}
+>- [https://github.com/quarkusio/quarkus/issues/36204](https://github.com/quarkusio/quarkus/issues/36204){:target="_blank"}
 
 👉 요약하면 다음과 같은 일이 반복적으로 일어난다는 내용이다.
 1. 메모리 요청이 들어온다.
@@ -199,8 +199,8 @@ JVM 에 위 같은 문제가 있자, `malloc_trim()` 명령어를 애플리케�
 👉 `jcmd <pid> System.trim_native_heap`
 
 
-- [https://bugs.openjdk.org/browse/JDK-8268893](https://bugs.openjdk.org/browse/JDK-8268893)
-- [https://bugs.openjdk.org/browse/JDK-8273602](https://bugs.openjdk.org/browse/JDK-8273602)
+- [https://bugs.openjdk.org/browse/JDK-8268893](https://bugs.openjdk.org/browse/JDK-8268893){:target="_blank"}
+- [https://bugs.openjdk.org/browse/JDK-8273602](https://bugs.openjdk.org/browse/JDK-8273602){:target="_blank"}
 
 또한 JVM 에서 이를 자동으로 호출하는 기능이 JDK `17.0.9`, `21.0.1` 에 백포팅되어 `-XX:TrimNativeHeapInterval` 옵션을 통해 trim 주기를 설정할 수 있다.
 초기에는 실험 기능으로 들어갔기 때문에 `-XX:+UnlockExperimentalVMOptions` 옵션을 함께 활성화 해야 했지만 지금은 공식 기능으로 채택되었다.
@@ -209,15 +209,15 @@ JVM 에 위 같은 문제가 있자, `malloc_trim()` 명령어를 애플리케�
 
 <img width="1305" alt="스크린샷 2024-07-23 오후 4 34 45" src="https://github.com/user-attachments/assets/671354c7-0655-4f72-97fe-cd796f7fedf3">
 
-- [https://bugs.openjdk.org/browse/JDK-8293114](https://bugs.openjdk.org/browse/JDK-8293114)
-- [https://bugs.openjdk.org/browse/JDK-8325496](https://bugs.openjdk.org/browse/JDK-8325496)
+- [https://bugs.openjdk.org/browse/JDK-8293114](https://bugs.openjdk.org/browse/JDK-8293114){:target="_blank"}
+- [https://bugs.openjdk.org/browse/JDK-8325496](https://bugs.openjdk.org/browse/JDK-8325496){:target="_blank"}
 
 **_Autotrim 기능은 JDK 11 엔 백포팅 해주지 않았다..😡 놓아줄 때가 된 듯 하다._**
 
 ## 테스트 & 검증
 테스트를 통해서 위에서 언급한 `4번 (Arena 에 사용되지 않는 freelist 들이 계속 쌓여간다.)` 을 검증해보자.
 
-메모리 할당 상태를 살펴보기 위해 pmap 커맨드를 이용해도 해당 메모리가 Arena 에 할당된 메모리인지 알기 힘든데, 다행히도 [pmap 의 메모리 할당 상태를 분석해주는 java 애플리케이션](https://github.com/bric3/java-pmap-inspector)이 있다. inspector 를 사용하면 100% 는 아니지만 대략적으로 현재 메모리의 할당 상태를 확인해볼 수 있다. pmap 결과를 인자로 전달하면 inspector 가 메모리 할당 상태를 분석해준다.
+메모리 할당 상태를 살펴보기 위해 pmap 커맨드를 이용해도 해당 메모리가 Arena 에 할당된 메모리인지 알기 힘든데, 다행히도 [pmap 의 메모리 할당 상태를 분석해주는 java 애플리케이션](https://github.com/bric3/java-pmap-inspector){:target="_blank"}이 있다. inspector 를 사용하면 100% 는 아니지만 대략적으로 현재 메모리의 할당 상태를 확인해볼 수 있다. pmap 결과를 인자로 전달하면 inspector 가 메모리 할당 상태를 분석해준다.
 
 분석 방법은 간단하다.
 
