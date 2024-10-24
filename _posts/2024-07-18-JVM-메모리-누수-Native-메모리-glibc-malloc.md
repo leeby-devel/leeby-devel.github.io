@@ -202,7 +202,7 @@ JVM 에 위 같은 문제가 있자, `malloc_trim()` 명령어를 애플리케�
 - [https://bugs.openjdk.org/browse/JDK-8268893](https://bugs.openjdk.org/browse/JDK-8268893){:target="_blank"}
 - [https://bugs.openjdk.org/browse/JDK-8273602](https://bugs.openjdk.org/browse/JDK-8273602){:target="_blank"}
 
-또한 JVM 에서 이를 자동으로 호출하는 기능이 JDK `17.0.9`, `21.0.1` 에 백포팅되어 `-XX:TrimNativeHeapInterval` 옵션을 통해 trim 주기를 설정할 수 있다.
+또한 JVM 에서 이를 자동으로 호출하는 기능이 JDK `17.0.12`, `21.0.3` 부터 정식 기능으로 백포팅되어 `-XX:TrimNativeHeapInterval` 옵션을 통해 trim 주기를 설정할 수 있다.
 초기에는 실험 기능으로 들어갔기 때문에 `-XX:+UnlockExperimentalVMOptions` 옵션을 함께 활성화 해야 했지만 지금은 공식 기능으로 채택되었다.
 기본으로는 비활성화되어있고, 주기를 설정하면 활성화된다.
 
@@ -285,11 +285,11 @@ JVM 에 위 같은 문제가 있자, `malloc_trim()` 명령어를 애플리케�
 - **원인**: glibc 를 표준 C 라이브러리로 사용하는 리눅스 시스템 C 메모리 할당자 (= ptmalloc2) 의 메모리 파편화 문제
 
 ## 개선 방안
-**👉 JDK `17.0.9`, `21.0.1` 이상 버전**
+**👉 JDK `17.0.12`, `21.0.3` 이상 버전**
 - `-XX:TrimNativeHeapInterval` 옵션을 활성화 하여 JVM 이 파편화된 freelist 메모리를 주기적으로 정리하도록 한다.
 
 **👉 그 이전 버전**
-- JDK `17.0.9`, `21.0.1` 이상 버전으로 업그레이드한다. 😄
+- JDK `17.0.12`, `21.0.3` 이상 버전으로 업그레이드한다. 😄
 
 - jcmd 의 `System.trim_native_heap` 를 호출하는 스크립트를 일정 주기로 실행시킨다.\
   JDK `11.0.18`, `17.0.2` 이상의 jcmd 에만 포함된 기능이다.
