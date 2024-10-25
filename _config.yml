@@ -103,7 +103,7 @@ comments:
     issue_term: pathname   # < url | pathname | title | ...>
     theme: github-dark
 
-paginate: 10
+paginate: 4
 
 # ------------ The following options are not recommended to be modified ------------------
 
