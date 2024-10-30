@@ -57,7 +57,7 @@ _long[] <= 1.3GB 인 시점_
 
 세 덤프 파일 모두 `long[]` 타입 객체들의 [Immediate Dominator](https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.mat.ui.help%2Freference%2Finspections%2Fimmediate_dominators.html){:target="_blank"} 를 따라가보니 [Lettuce CommandLatencyRecorder](https://lettuce.io/core/release/api/io/lettuce/core/metrics/CommandLatencyRecorder.html){:target="_blank"} 에서 사용하는 컴포넌트들 (**Hstogram**, **AtomicHistogram**, **LatencyUtils**) 의 파이가 앱이 에이징됨에 따라 점점 누적되고 있었다. lettuce 가 용의자에서 범인이 되는 순간이다. 😊
 
-> [유사 사례](https://github.com/redis/lettuce/issues/1210)
+> [유사 사례](https://github.com/redis/lettuce/issues/1210){:target="_blank"}
 
 # 해결 방법
 lettuce 의 [Command Latency Metrics](https://github.com/redis/lettuce/wiki/Command-Latency-Metrics#command.latency.metrics.builtin){:target="_blank"} 스펙은 우리 파트에서 직접 사용하지 않고 앞으로 사용하지 않을 것 같은 lettuce 의 디버깅, 모니터링 관련 스펙이라고 판단했고 이에 따라 기능을 disable 처리했다.
