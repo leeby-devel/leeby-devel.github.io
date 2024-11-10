@@ -39,7 +39,7 @@ committed 크기가 reserved 와 달라 필요에 따라 reserved 까지 점진�
 <summary><strong>👉 부연 설명</strong></summary>
 (G1GC 기준) GC Cycle 은 committed 메모리 범위 내에서 수행된다. 따라서 committed 메모리 크기가 작으면 그 만큼 GC 주기가 짧아진다.
 엄밀하게는 GC Cycle 은 사용중인 메모리 (RSS) 범위 내에서 수행되고 추가 메모리가 필요하면 RSS 가 committed 만큼 확장되는 것이다.
-이후에 committed 메모리로도 부족하면 OS 로부터 추가 메모리를 요청하고, 이 크기는 reserved 만큼 늘어날 수 있다.
+이후에 committed 메모리로도 부족하면 OS 에 추가 메모리를 요청하고, 이 크기는 reserved 만큼 늘어날 수 있다.
 </details>
 \
 덧붙여 JDK 11 까지는 **한번 committed 된 메모리는 OS 로 반환되지 않았다**.
