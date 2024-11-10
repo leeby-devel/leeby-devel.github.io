@@ -60,7 +60,7 @@ JEP 346 개선사항은 **JDK 12 부터 적용**되었기 때문에 `JDK 11 → 
 _JDK <= 11_
 
 <img width="800" alt="after-jdk12" src="https://github.com/user-attachments/assets/f93354b0-0d04-4198-8a63-952e3408c468">
-_JDK >= 12_
+_JDK >= 12 → 미사용 committed 메모리가 OS 로 반환되는 모습을 볼 수 있다._
 
 두 환경 모두 `InitialRAMPercentage`, `MaxRAMPercentage` 두 값을 동일하게 75% 로 두었다.
 눈여겨 볼 점은 **JDK >= 12 에서는 `InitialRAMPercentage` 옵션이 기대와 같이 동작하지 않는 다는 점**이다.
