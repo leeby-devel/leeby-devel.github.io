@@ -3,7 +3,7 @@ title: JEP 346 > unused (미사용) committed memory 를 OS 로 반환
 author:
 name: leeby
 link: https://github.com/leeby-devel
-date: 2024-11-10 09:39:00 +0900
+date: 2024-11-10 21:39:00 +0900
 categories: [JVM, GC]
 tags: [JEP, JVM, JDK, G1GC, GC]
 ---
