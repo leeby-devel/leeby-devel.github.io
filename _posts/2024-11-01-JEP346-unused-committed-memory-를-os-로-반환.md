@@ -14,15 +14,17 @@ tags: [JEP, JVM, JDK, G1GC, GC]
 업데이트 후 애플리케이션 메트릭을 살펴보는데 Heap 메모리 풋프린트가 이전과 다른 양상을 보였고, 이번 포스트에서 해당 내용을 다뤄보고자 한다.
 
 ## JVM Heap 메모리
-먼저 JVM 힙메모리 상태에 대한 용어부터 짚고 가는 게 좋을 것 같다. Grafana JVM Micrometer 기준으로 JVM 힙 메모리는 `used`, `committed`, `max` (= reserved) 로 나뉜다.
+먼저 JVM 힙메모리 상태에 대한 용어부터 짚고 가는 게 좋을 것 같다. **Grafana JVM Micrometer 기준**으로 JVM 힙 메모리는 `used`, `committed`, `max` (= reserved) 로 나뉜다.
 
 <img width="800" alt="jvm-micrometer" src="https://github.com/user-attachments/assets/b6ce583d-4a84-41eb-b208-276722b76c82">
 _committed == max 인 상태_
 
 > - `used`: 애플리케이션 힙의 라이브 오브젝트들에 의해 점유되고 있는 메모리이다.
-> - `RSS (of heap)`: 애플리케이션이 물리적으로 (실제로) 점유하고 있는 메모리 영역이다. committed 까지 확장될 수 있다. Grafana 에서 표현되지 않으므로 가상의 선을 그었다.
+> - `RSS (of heap)`: 애플리케이션이 물리적으로 (실제로) 점유하고 있는 메모리 영역이다. Grafana 에서 표현되지 않으므로 대충 가상의 선을 그었다. committed 영역에서 실제로 사용중인 부분으로 이해하면 된다. pmap 으로 관찰 가능하다.
 > - `committed`: 애플리케이션이 OS 로 부터 미리 할당받아 놓은 메모리 영역이다. 실제로 사용(RSS)되고 있을 수도 있고 아닐 수도 있다. reserved 까지 확장될 수 있다.
 > - `reserved` (= max): 애플리케이션이 OS 로부터 할당받을 수 있는 메모리의 최대 크기이다.
+>
+> _ref. [https://stackoverflow.com/a/31178912](https://stackoverflow.com/a/31178912){:target="_blank"}_
 
 ## 기존 (JDK 11) 까지의 메모리 설정
 JDK 11 까지는 `InitialRAMPercentage` 를 `MaxRAMPercentage` 와 같게 두거나, `xms` 값을 `xmx` 값과 같게 두는 것이 권장되었다.
@@ -42,14 +44,15 @@ committed 크기가 reserved 와 달라 필요에 따라 reserved 까지 점진�
 이후에 committed 메모리로도 부족하면 OS 에 추가 메모리를 요청하고, 이 크기는 reserved 만큼 늘어날 수 있다.
 </details>
 \
-덧붙여 JDK 11 까지는 **한번 committed 된 메모리는 OS 로 반환되지 않았다**.
+중요한 점은, **JDK 11 까지는 한번 committed 된 메모리는 (정말 특별한 경우가 아니면) OS 로 반환되지 않는다**는 점이다.
 
-즉, 애플리케이션이 에이징됨에 따라 committed 영역의 크기가 늘어났지만 이후에 실제로 메모리가 사용되지 않더라도 OS 로 반환되지는 않았다.
+예를 들어, 위 설정과 다르게 `InitialRAMPercentage` 값을 낮게 설정했더라도 트래픽이 많은 시간대에서 확장된 메모리 크기는 트래픽이 적은 새벽이 된다고 해서 줄어들지 않는다.
+즉 앱이 에이징 됨에 따라 committed 메모리는 reserved 까지 계속해서 증가하는 양상을 띄게 된다. (트래픽이 있는 애플리케이션이라면)
 
-## JEP 346 > 메모리 관리 패턴 개선
-이러한 메모리 사용 패턴은 사용량만큼 비용을 지불하는 클라우드 환경에서는 큰 단점으로 작용한다.
-JEP 346 에서는 이러한 점을 개선하기 위해, **사용되지 않는 메모리는 OS 로 반환되도록 G1GC 의 메모리 사용 패턴에 변화**를 줬다.
-위 내용은 [JEP 346](https://openjdk.org/jeps/346){:target="_blank"} 의 Motivation 에 잘 나와있다.
+## JEP 346 > 메모리 관리 패턴 개선 사항
+**이러한 메모리 사용 패턴은 사용량만큼 비용을 지불하는 클라우드 환경에서는 큰 단점**으로 작용한다.
+JEP 346 에서는 이러한 점을 개선하기 위해, **유휴 committed 메모리는 OS 로 반환되도록 G1GC 의 메모리 사용 패턴에 변화**를 줬다.
+위 내용은 **"[JEP 346](https://openjdk.org/jeps/346){:target="_blank"} > Motivation"** 에 잘 나와있다.
 
 JEP 346 개선사항은 **JDK 12 부터 적용**되었기 때문에 `JDK 11 → 17` 업데이트 이후에 현상을 발견한 것이었다.
 
@@ -67,11 +70,17 @@ _JDK >= 12 → 미사용 committed 메모리가 OS 로 반환되는 모습을 �
 예상 대로면 committed, reserved (= max) 풋프린트가 같아야 하기 때문이다.
 
 ### **InitialRAMPercentage 사용성 이해**
-이는 **JEP 346 에서 메모리 관리 기능이 변경되었고 이 기능이 우선**되어 `InitialRAMPercentage` 를 아무리 높게 설정하여도 실제 사용되지 않는 메모리는 committed 풋프린트로 잡히지 않게 된 것이다.
+> **JEP 346 > Risks and Assumptions**
+>
+> When this feature (이번 개선 사항) is enabled, the VM runs these periodic collections under the conditions above regardless of other options. E.g. the VM could make an assumption that if the user sets -Xms to -Xmx and other (combinations of) options to get minimal and consistent garbage collection pauses. This will not be the case for consistency reasons.
+{: .prompt-note }
 
+이는 **JEP 346 에서 메모리 관리 기능이 변경되었고 이 기능이 우선**되어 `InitialRAMPercentage` 를 아무리 높게 설정하여도 실제 사용되지 않는 메모리는 committed 풋프린트로 잡히지 않게 된 것이다.
 따라서 **JDK 12 이후부터는 `InitialRAMPercentage` 값을 `MaxRAMPercentage` 값과 같게 (= 높게) 두는 것은 아무 의미가 없어졌다.**
 
 다만 `InitialRAMPercentage` 옵션은 여전히 초기 힙 메모리를 설정하는 옵션으로서 의미가 있다.
 JEP 346 개선사항으로 인해 `InitialRAMPercentage` 옵션이 직접적으로 변경된 것은 아니지만 간접적인 영향을 받았고, **옵션의 사용 맥락에 있어 약간의 변화가 생겼다고 이해**하면 될 것 같다.
+
+필요할 때만 메모리를 확장하고 필요없을 때는 OS 로 메모리를 반환하는 패턴은 결과적으로 Worker Node 관점에서의 메모리 풋프린트를 크게 줄여줬다. (애플리케이션에 따라 대략 60% ~ 30% 정도)
 
 JEP 346 개선사항은 클라우드 환경이 너무 당연한 요즘, 인프라 비용을 절감할 수 있는 아주 매력적인 피쳐라는 생각이 든다.
